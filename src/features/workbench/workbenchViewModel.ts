@@ -29,7 +29,8 @@ export interface WorkspaceViewModel {
   selectItem: (id: string | null) => void
   addItem: (type: DeviceType) => void
   removeItem: (id: string) => void
-  moveItem: (id: string, x: number, y: number) => void
+  /** 仅在拖动结束（松手）时调用；拖动过程中的临时吸附位置不得经过这里写入 */
+  commitItemPosition: (id: string, x: number, y: number) => void
   rotateItem: (id: string, delta: number) => void
   updateItem: (id: string, patch: Partial<Pick<DeskItem, 'widthMm' | 'heightMm' | 'x' | 'y'>>) => void
   updateDesk: (field: 'deskWidthMm' | 'deskHeightMm', value: number) => void
@@ -110,7 +111,7 @@ export function useWorkspaceViewModel(repository?: WorkspaceRepository): Workspa
     setSelectedItemId((current) => current === id ? null : current)
   }, [updateActivePlan])
 
-  const moveItem = useCallback((id: string, x: number, y: number) => {
+  const commitItemPosition = useCallback((id: string, x: number, y: number) => {
     updateActivePlan((plan) => ({ ...plan, items: moveCanvasItem(plan.items, id, x, y) }), '位置已更新')
   }, [updateActivePlan])
 
@@ -187,7 +188,7 @@ export function useWorkspaceViewModel(repository?: WorkspaceRepository): Workspa
     selectItem,
     addItem,
     removeItem,
-    moveItem,
+    commitItemPosition,
     rotateItem,
     updateItem,
     updateDesk,
